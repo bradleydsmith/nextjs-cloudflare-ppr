@@ -2,13 +2,14 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
 
 interface UserCardProps {
-  name: string;
-  first_name: string;
-  last_name: string;
+  user: {
+    id: number;
+    first_name: string;
+    last_name: string;
+  }
 }
 
 export default function UserCard({ user }: UserCardProps) {
-  console.log(user);
   const initials = `${user.first_name.substr(0, 1)} ${user.last_name.substr(0, 1)}`;
   const name = `${user.first_name} ${user.last_name}`;
 
