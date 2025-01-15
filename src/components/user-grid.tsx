@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import Link from "next/link";
-import UserCard from "./user-card"
+import UserCard from "./user-card";
 
 interface User {
   id: number;
@@ -17,7 +17,9 @@ export default async function UserGrid() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl">
         {users.map((user: User) => (
-          <UserCard key={user.id} user={user} />
+          <Link key={user.id} href={`/users/${user.id}`}>
+            <UserCard user={user} />
+          </Link>
         ))}
       </div>
       <Link href="/client-component" className="mt-4">
