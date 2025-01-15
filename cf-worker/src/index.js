@@ -177,6 +177,7 @@ async function handleProxyRequest(req) {
 
 	const headers = new Headers(req.headers);
 	headers.delete('host');
+	headers.set('origin', BASE_ORIGIN);
 
 	return fetch(proxyUrl, {
 		method: req.method,
