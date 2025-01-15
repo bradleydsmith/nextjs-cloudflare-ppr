@@ -23,7 +23,7 @@ export default {
         		} else {
           			return await handleHtmlPath(request, route.jsonPath);
         		}
-      		} else if (isNextStateTree) {
+      		} else if (request.method === 'GET' && isNextStateTree) {
       			return await handleNextStateTree(request);
       		} else {
 				return await handleProxyRequest(request);
