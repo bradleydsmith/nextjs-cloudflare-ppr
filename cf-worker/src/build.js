@@ -4,10 +4,22 @@ const nextDirectory = `${__dirname}/../..`;
 
 const prerenderManifest = JSON.parse(fs.readFileSync(`${nextDirectory}/.next/prerender-manifest.json`, 'utf8'));
 
-let routes = Object.entries(prerenderManifest.routes).map(([route, data]) => ({
-  route,
-  ...data
-}));
+// Combine both static and dynamic routes
+let routes = [
+  // Static routes
+  ...Object.entries(prerenderManifest.routes).map(([route, data]) => ({
+    route,
+    dynamic: false,
+    ...data
+  })),
+  // Dynamic routes
+  ...Object.entries(prerenderManifest.dynamicRoutes).map(([route, data]) => ({
+    route: data.fallback,
+    routeRegex: data.routeRegex,
+    dynamic: true,
+    ...data
+  }))
+];
 
 // Delete any routes that aren't PARTIALLY_STATIC with experimentalPPR
 routes = routes.filter(route => 
@@ -58,14 +70,22 @@ for (const routeObj of routes) {
   const data = {
     html,
     rsc,
-    postponed
+    postponed,
+    dynamic: routeObj.dynamic
   };
+
+  // Add routeRegex if it exists
+  if (routeObj.routeRegex) {
+    data.routeRegex = routeObj.routeRegex;
+  }
 
   fs.writeFileSync(`${__dirname}/prerender/${routePath}.json`, JSON.stringify(data, null, 2));
 
   // Add mapping to the array
   routeMappings.push({
     route: routeObj.route,
+    dynamic: routeObj.dynamic,
+    routeRegex: routeObj.routeRegex,
     jsonPath: routeObj.route === '/' 
       ? './prerender/index.json'
       : `./prerender${routeObj.route}.json`

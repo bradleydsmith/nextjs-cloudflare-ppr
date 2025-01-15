@@ -8,7 +8,10 @@ export default {
 			const routesText = await import('./prerender/routes.json');
 			const routes = JSON.parse(routesText.default);
 			// Check if the pathname matches any route in routes.json
-			const route = routes.find(r => r.route === url.pathname);
+			const route = routes.find(r => 
+				(!r.dynamic && r.route === url.pathname) || 
+				(r.dynamic && new RegExp(r.routeRegex).test(url.pathname))
+			);
 
       		const isRSC = request.headers.get('rsc') === '1';
       		const isNextStateTree = request.headers.get('next-router-state-tree') != null ? true : false;
