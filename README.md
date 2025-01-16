@@ -9,7 +9,7 @@ It is not intended for production use or to be a project there will be support f
  1. Run npm install and npm run build in the main directory
  2. Add your origin server URL to the cf-worker/src/index.js file
  3. cd cf-worker and run npm install
- 4. cd into the src directory and run node build.js
- 5. Run npx wrangler deploy
+ 4. cd into the cf-worker/src directory and run node build.js
+ 5. Run npx wrangler deploy in the cf-worker directory
 
 Note: Wrangler does not seem to deal well with streaming responses so running npx wrangler dev will not properly show streaming responses
