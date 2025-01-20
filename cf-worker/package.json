@@ -6,11 +6,16 @@
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
     "start": "wrangler dev",
-    "test": "vitest"
+    "test": "vitest",
+    "format:check": "prettier --check .",
+    "format:write": "prettier --write ."
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.5.2",
     "vitest": "2.1.8",
     "wrangler": "^3.102.0"
+  },
+  "dependencies": {
+    "prettier": "^3.4.2"
   }
 }
