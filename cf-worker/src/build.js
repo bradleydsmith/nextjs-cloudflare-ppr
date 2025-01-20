@@ -1,8 +1,10 @@
-const fs = require('fs');
+const fs = require("fs");
 
 const nextDirectory = `${__dirname}/../..`;
 
-const prerenderManifest = JSON.parse(fs.readFileSync(`${nextDirectory}/.next/prerender-manifest.json`, 'utf8'));
+const prerenderManifest = JSON.parse(
+  fs.readFileSync(`${nextDirectory}/.next/prerender-manifest.json`, "utf8"),
+);
 
 // Combine both static and dynamic routes
 let routes = [
@@ -10,20 +12,22 @@ let routes = [
   ...Object.entries(prerenderManifest.routes).map(([route, data]) => ({
     route,
     dynamic: false,
-    ...data
+    ...data,
   })),
   // Dynamic routes
   ...Object.entries(prerenderManifest.dynamicRoutes).map(([route, data]) => ({
     route: data.fallback,
     routeRegex: data.routeRegex,
     dynamic: true,
-    ...data
-  }))
+    ...data,
+  })),
 ];
 
 // Delete any routes that aren't PARTIALLY_STATIC with experimentalPPR
-routes = routes.filter(route => 
-  route.renderingMode === 'PARTIALLY_STATIC' && route.experimentalPPR === true
+routes = routes.filter(
+  (route) =>
+    route.renderingMode === "PARTIALLY_STATIC" &&
+    route.experimentalPPR === true,
 );
 
 // Delete and recreate prerender directory
@@ -41,11 +45,11 @@ let routeMappings = [];
 
 for (const routeObj of routes) {
   // Split route into path segments and remove empty strings
-  const segments = routeObj.route.split('/').filter(Boolean);
-  
+  const segments = routeObj.route.split("/").filter(Boolean);
+
   // Don't create directory for the last segment since it will be a file
   const dirSegments = segments.slice(0, -1);
-  
+
   // Build up the directory path
   let currentPath = `${__dirname}/prerender`;
   for (const segment of dirSegments) {
@@ -56,11 +60,22 @@ for (const routeObj of routes) {
     }
   }
 
-  const routePath = routeObj.route === '/' ? 'index' : routeObj.route;
-  
-  const html = fs.readFileSync(`${nextDirectory}/.next/server/app/${routePath}.html`, 'utf8');
-  const rsc = fs.readFileSync(`${nextDirectory}/.next/server/app/${routePath}.prefetch.rsc`, 'utf8');
-  const meta = JSON.parse(fs.readFileSync(`${nextDirectory}/.next/server/app/${routePath}.meta`, 'utf8'));
+  const routePath = routeObj.route === "/" ? "index" : routeObj.route;
+
+  const html = fs.readFileSync(
+    `${nextDirectory}/.next/server/app/${routePath}.html`,
+    "utf8",
+  );
+  const rsc = fs.readFileSync(
+    `${nextDirectory}/.next/server/app/${routePath}.prefetch.rsc`,
+    "utf8",
+  );
+  const meta = JSON.parse(
+    fs.readFileSync(
+      `${nextDirectory}/.next/server/app/${routePath}.meta`,
+      "utf8",
+    ),
+  );
 
   let postponed = false;
   if (meta.postponed) {
@@ -71,7 +86,7 @@ for (const routeObj of routes) {
     html,
     rsc,
     postponed,
-    dynamic: routeObj.dynamic
+    dynamic: routeObj.dynamic,
   };
 
   // Add routeRegex if it exists
@@ -79,23 +94,27 @@ for (const routeObj of routes) {
     data.routeRegex = routeObj.routeRegex;
   }
 
-  fs.writeFileSync(`${__dirname}/prerender/${routePath}.json`, JSON.stringify(data, null, 2));
+  fs.writeFileSync(
+    `${__dirname}/prerender/${routePath}.json`,
+    JSON.stringify(data, null, 2),
+  );
 
   // Add mapping to the array
   routeMappings.push({
     route: routeObj.route,
     dynamic: routeObj.dynamic,
     routeRegex: routeObj.routeRegex,
-    jsonPath: routeObj.route === '/' 
-      ? './prerender/index.json'
-      : `./prerender${routeObj.route}.json`
+    jsonPath:
+      routeObj.route === "/"
+        ? "./prerender/index.json"
+        : `./prerender${routeObj.route}.json`,
   });
 }
 
 // Write the routes.json file
 fs.writeFileSync(
-  `${__dirname}/prerender/routes.json`, 
-  JSON.stringify(routeMappings, null, 2)
+  `${__dirname}/prerender/routes.json`,
+  JSON.stringify(routeMappings, null, 2),
 );
 
 // Check if the ../public/_next directory exists, if so delete it and recreate it. Then copy
@@ -111,6 +130,10 @@ if (fs.existsSync(`${__dirname}/../public/_next`)) {
   fs.rmdirSync(`${__dirname}/../public/_next`, { recursive: true });
 }
 fs.mkdirSync(`${__dirname}/../public/_next`);
-fs.cpSync(`${nextDirectory}/.next/static`, `${__dirname}/../public/_next/static`, { recursive: true });
+fs.cpSync(
+  `${nextDirectory}/.next/static`,
+  `${__dirname}/../public/_next/static`,
+  { recursive: true },
+);
 
-console.log('JSON files and routes mapping created successfully!');
+console.log("JSON files and routes mapping created successfully!");
